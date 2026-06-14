@@ -3,6 +3,16 @@
 import { TOPICS } from '@/lib/constants';
 import type { Topic } from '@/types';
 
+// Material Symbols icon names — exactly as in S1.1
+const TOPIC_ICONS: Record<string, string> = {
+  machine_learning:  'psychology',
+  computer_science:  'code',
+  system_design:     'hub',
+  data_structures:   'account_tree',
+  databases:         'database',
+  operating_systems: 'memory',
+};
+
 interface TopicSelectorProps {
   selected: Topic | null;
   onSelect: (topic: Topic) => void;
@@ -10,29 +20,17 @@ interface TopicSelectorProps {
 
 export default function TopicSelector({ selected, onSelect }: TopicSelectorProps) {
   return (
-    <div>
-      <label
-        style={{
-          display: 'block',
-          fontFamily: 'var(--font-display)',
-          fontSize: '0.7rem',
-          fontWeight: 600,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: 'var(--color-text-disabled)',
-          marginBottom: '12px',
-        }}
-      >
-        Select your field
-      </label>
+    <section className="mb-24">
+      {/* Section heading */}
+      <div className="flex flex-col items-center mb-16">
+        <h2 className="font-mono text-sm tracking-[0.4em] text-on-surface font-bold uppercase mb-4">
+          Select your field
+        </h2>
+        <div className="w-16 h-1 bg-primary rounded-full shadow-[0_0_10px_rgba(126,252,157,0.5)]" />
+      </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '10px',
-        }}
-      >
+      {/* Circular spatial cards — 2 cols on mobile, 3 on md+ */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-10 md:gap-16">
         {TOPICS.map((topic) => {
           const isSelected = selected === topic.id;
           return (
@@ -40,79 +38,35 @@ export default function TopicSelector({ selected, onSelect }: TopicSelectorProps
               key={topic.id}
               onClick={() => onSelect(topic.id)}
               aria-pressed={isSelected}
-              style={{
-                background: isSelected
-                  ? 'rgba(0,255,136,0.07)'
-                  : 'var(--color-surface-2)',
-                border: isSelected
-                  ? '1px solid var(--color-phosphor)'
-                  : '1px solid var(--color-border-2)',
-                borderRadius: '10px',
-                padding: '16px 14px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-              onMouseEnter={(e) => {
-                if (!isSelected) {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor =
-                    'var(--color-text-disabled)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isSelected) {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor =
-                    'var(--color-border-2)';
-                }
-              }}
+              className={`spatial-circle group scale-90 p-6${isSelected ? ' active' : ''}`}
             >
-              {/* Selected indicator */}
-              {isSelected && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: '10px',
-                    right: '10px',
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: 'var(--color-phosphor)',
-                    boxShadow: '0 0 6px var(--color-phosphor)',
-                  }}
-                />
-              )}
+              <span
+                className={`material-symbols-outlined text-2xl mb-2 group-hover:scale-110 transition-transform group-hover:text-primary${
+                  isSelected ? ' text-primary' : ' text-on-surface-variant transition-colors'
+                }`}
+              >
+                {TOPIC_ICONS[topic.id]}
+              </span>
 
-              <p
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.82rem',
-                  fontWeight: 600,
-                  color: isSelected
-                    ? 'var(--color-phosphor)'
-                    : 'var(--color-text-primary)',
-                  margin: '0 0 5px 0',
-                  transition: 'color 0.15s',
-                }}
+              <span
+                className={`font-headline font-bold text-2xl${
+                  isSelected
+                    ? ' text-on-surface'
+                    : ' text-on-surface-variant group-hover:text-on-surface'
+                }`}
               >
                 {topic.label}
-              </p>
-              <p
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '0.75rem',
-                  color: 'var(--color-text-disabled)',
-                  margin: 0,
-                  lineHeight: 1.4,
-                }}
-              >
-                {topic.description}
-              </p>
+              </span>
+
+              {isSelected && (
+                <span className="text-xs font-mono mt-3 text-primary font-bold">
+                  SELECTED
+                </span>
+              )}
             </button>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

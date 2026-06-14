@@ -12,14 +12,14 @@ export default function SetupForm() {
   const router = useRouter();
   const { startSession } = useSession();
 
-  const setTopic = useInterviewStore((s) => s.setTopic);
+  const setTopic      = useInterviewStore((s) => s.setTopic);
   const setDifficulty = useInterviewStore((s) => s.setDifficulty);
-  const setSessionId = useInterviewStore((s) => s.setSessionId);
-  const selectedTopic = useInterviewStore((s) => s.selectedTopic);
+  const setSessionId  = useInterviewStore((s) => s.setSessionId);
+  const selectedTopic      = useInterviewStore((s) => s.selectedTopic);
   const selectedDifficulty = useInterviewStore((s) => s.selectedDifficulty);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]         = useState<string | null>(null);
 
   const canStart = selectedTopic !== null && selectedDifficulty !== null;
 
@@ -43,155 +43,74 @@ export default function SetupForm() {
   };
 
   return (
-    <div
-      className="card"
-      style={{ padding: '32px' }}
-    >
-      {/* Topic Selection */}
-      <div style={{ marginBottom: '28px' }}>
-        <TopicSelector
-          selected={selectedTopic}
-          onSelect={(t: Topic) => setTopic(t)}
-        />
-      </div>
-
-      {/* Difficulty Selection */}
-      <div style={{ marginBottom: '32px' }}>
-        <DifficultyPicker
-          selected={selectedDifficulty}
-          onSelect={(d: Difficulty) => setDifficulty(d)}
-        />
-      </div>
-
-      {/* Divider */}
-      <div
-        style={{
-          height: '1px',
-          background: 'var(--color-border)',
-          marginBottom: '28px',
-        }}
+    <>
+      {/* Field selection — circular spatial cards */}
+      <TopicSelector
+        selected={selectedTopic}
+        onSelect={(t: Topic) => setTopic(t)}
       />
 
-      {/* What to expect */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '24px',
-          marginBottom: '28px',
-        }}
-      >
-        {[
-          { stat: '10', label: 'questions' },
-          { stat: 'adaptive', label: 'difficulty' },
-          { stat: 'scored', label: 'by AI' },
-        ].map((item) => (
-          <div key={item.label} style={{ flex: 1 }}>
-            <p
-              style={{
-                fontFamily: 'var(--font-data)',
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                color: 'var(--color-phosphor)',
-                margin: '0 0 2px 0',
-              }}
-            >
-              {item.stat}
-            </p>
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '0.75rem',
-                color: 'var(--color-text-disabled)',
-                margin: 0,
-              }}
-            >
-              {item.label}
-            </p>
-          </div>
-        ))}
-      </div>
+      {/* Difficulty toggle */}
+      <DifficultyPicker
+        selected={selectedDifficulty}
+        onSelect={(d: Difficulty) => setDifficulty(d)}
+      />
 
-      {/* Error Message */}
+      {/* Error message */}
       {error && (
-        <div
-          role="alert"
-          style={{
-            background: 'rgba(239,68,68,0.07)',
-            border: '1px solid rgba(239,68,68,0.25)',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            marginBottom: '16px',
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.82rem',
-              color: 'var(--color-red)',
-              margin: 0,
-              lineHeight: 1.5,
-            }}
-          >
-            {error}
-          </p>
+        <div className="max-w-lg mx-auto mb-8 px-6 py-4 rounded-2xl border border-red-500/30 bg-red-500/10 text-red-400 font-mono text-sm text-center">
+          {error}
         </div>
       )}
 
-      {/* Start Button */}
-      <button
-        className="btn-primary"
-        onClick={handleStart}
-        disabled={!canStart || isLoading}
-        style={{ width: '100%', fontSize: '0.9rem', padding: '14px' }}
-        aria-label={
-          !canStart
-            ? 'Select a topic and difficulty to continue'
-            : 'Start interview'
-        }
-      >
-        {isLoading ? (
-          <>
-            <LoadingSpinner />
-            Setting up your session…
-          </>
-        ) : (
-          <>
-            Start Interview
-            <span style={{ opacity: canStart ? 1 : 0.4 }}>→</span>
-          </>
-        )}
-      </button>
-
-      {!canStart && (
-        <p
-          style={{
-            textAlign: 'center',
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.75rem',
-            color: 'var(--color-text-disabled)',
-            marginTop: '10px',
-            marginBottom: 0,
-          }}
+      {/* Start button — exactly as S1.1 glass-pill */}
+      <div className="flex flex-col items-center">
+        <button
+          onClick={handleStart}
+          disabled={!canStart || isLoading}
+          aria-label={!canStart ? 'Select a topic and difficulty to continue' : 'Start interview'}
+          className={`glass-pill w-full md:w-[480px] py-10 px-16 rounded-full font-headline text-3xl font-extrabold flex items-center justify-center gap-6 transition-transform active:scale-95 group hover:shadow-[0_0_40px_rgba(126,252,157,0.6)] duration-500${
+            canStart && !isLoading
+              ? ' hover:scale-[1.02] cursor-pointer'
+              : ' opacity-50 cursor-not-allowed'
+          }`}
         >
-          Pick a field and difficulty to continue
+          {isLoading ? (
+            <>
+              <LoadingSpinner />
+              <span className="relative z-20">Initializing…</span>
+            </>
+          ) : (
+            <>
+              <span className="relative z-20">Start Interview</span>
+              <span className="material-symbols-outlined relative z-20 text-4xl group-hover:translate-x-3 transition-transform">
+                arrow_forward
+              </span>
+            </>
+          )}
+        </button>
+
+        <p className="mt-12 font-mono text-xs tracking-[0.5em] text-on-surface-variant font-bold uppercase">
+          {canStart
+            ? 'Ready to initialize secure session'
+            : 'Select a field and difficulty to continue'}
         </p>
-      )}
-    </div>
+      </div>
+    </>
   );
 }
 
 function LoadingSpinner() {
   return (
     <svg
-      width="14"
-      height="14"
+      width="28"
+      height="28"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="2.5"
-      style={{
-        animation: 'spin 0.7s linear infinite',
-      }}
+      className="relative z-20"
+      style={{ animation: 'spin 0.7s linear infinite' }}
     >
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
