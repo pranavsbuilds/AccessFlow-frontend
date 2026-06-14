@@ -10,7 +10,7 @@ interface UseMicrophoneResult {
   isReady: boolean;
 }
 
-export function useMicrophone(): UseMicrophoneResult {
+export function useMicrophone(enableLevelMeter = true): UseMicrophoneResult {
   const streamRef = useRef<MediaStream | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -40,6 +40,12 @@ export function useMicrophone(): UseMicrophoneResult {
 
         streamRef.current = nextStream;
         setStream(nextStream);
+
+        if (!enableLevelMeter) {
+          setIsReady(true);
+          setError(null);
+          return;
+        }
 
         const audioContext = new AudioContext();
         audioCtxRef.current = audioContext;
@@ -88,7 +94,7 @@ export function useMicrophone(): UseMicrophoneResult {
       audioCtxRef.current?.close();
       streamRef.current?.getTracks().forEach((track) => track.stop());
     };
-  }, []);
+  }, [enableLevelMeter]);
 
   return { stream, audioLevel, error, isReady };
 }

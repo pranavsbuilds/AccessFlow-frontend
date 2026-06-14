@@ -1,11 +1,10 @@
-/* ─── Google Fonts — exactly as S1.1 ──────────────────────────────────────── */
+/* --- Google Fonts --- */
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
-/* ─── Tailwind ─────────────────────────────────────────────────────────────── */
+/* --- Tailwind --- */
 @import "tailwindcss";
 
 @theme inline {
-  /* S1.1 Neon Protocol palette */
   --color-background:         #0f150f;
   --color-surface:            #0f150f;
   --color-surface-container:  #1b211b;
@@ -15,7 +14,6 @@
   --color-on-surface-variant: #cbd5c9;
   --color-outline-variant:    #4a574a;
 
-  /* Legacy tokens kept for other screens */
   --color-void:           #0f150f;
   --color-surface-2:      #1b211b;
   --color-border:         #1e3020;
@@ -28,7 +26,6 @@
   --color-text-secondary: #cbd5c9;
   --color-text-disabled:  #4a574a;
 
-  /* Fonts */
   --font-display:   'Sora', sans-serif;
   --font-body:      'Inter', sans-serif;
   --font-data:      'JetBrains Mono', monospace;
@@ -38,7 +35,6 @@
   --color-foreground: var(--color-on-surface);
 }
 
-/* Tailwind custom classes needed for S1.1 */
 @layer utilities {
   .font-headline { font-family: 'Sora', sans-serif; }
   .font-body     { font-family: 'Inter', sans-serif; }
@@ -71,7 +67,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Material Symbols */
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   font-family: 'Material Symbols Outlined';
@@ -91,9 +86,8 @@ body {
   outline-offset: 3px;
 }
 
-/* ─── S1.1 Component Styles ────────────────────────────────────────────────── */
+/* --- S1.1 Component Styles --- */
 
-/* Ambient pulsing background glow */
 .ambient-glow {
   position: fixed;
   width: 70vw;
@@ -112,7 +106,6 @@ body {
   to   { opacity: 1;   transform: translate(-50%, -50%) scale(1.15); }
 }
 
-/* Glassmorphic card / navbar */
 .spatial-glass {
   background: rgba(27, 33, 27, 0.6);
   backdrop-filter: blur(25px) saturate(180%);
@@ -123,12 +116,10 @@ body {
   border-radius: 2rem;
 }
 
-/* Navbar pill override */
 .nav-pill {
   border-radius: 9999px !important;
 }
 
-/* Circular field selection cards */
 .spatial-circle {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(15px);
@@ -184,13 +175,11 @@ body {
   opacity: 0.5;
 }
 
-/* Difficulty fluid toggle */
 .fluid-toggle-bg {
   background: rgba(0,0,0,0.30);
   box-shadow: inset 0 2px 10px rgba(0,0,0,0.60);
 }
 
-/* Glass pill CTA button */
 .glass-pill {
   background: linear-gradient(135deg, #7efc9d 0%, #4fce75 100%);
   backdrop-filter: blur(10px);
@@ -219,7 +208,7 @@ body {
   50%       { opacity: 0.5; transform: scale(1.1); }
 }
 
-/* ─── Shared utility classes (used by non-setup screens) ───────────────────── */
+/* --- Shared utility classes --- */
 
 .btn-primary {
   display: inline-flex;
@@ -314,7 +303,7 @@ body {
   }
 }
 
-/* ─── Difficulty Cards ────────────────────────────────────────────────────── */
+/* --- Difficulty Cards --- */
 
 .diff-card {
   position: relative;
@@ -380,19 +369,9 @@ body {
     opacity 0.3s ease;
 }
 
-.diff-card:hover svg rect:nth-child(1) {
-  transform: scaleY(1.25);
-}
-
-.diff-card:hover svg rect:nth-child(2) {
-  transform: scaleY(1.25);
-  transition-delay: 0.04s;
-}
-
-.diff-card:hover svg rect:nth-child(3) {
-  transform: scaleY(1.25);
-  transition-delay: 0.08s;
-}
+.diff-card:hover svg rect:nth-child(1) { transform: scaleY(1.25); }
+.diff-card:hover svg rect:nth-child(2) { transform: scaleY(1.25); transition-delay: 0.04s; }
+.diff-card:hover svg rect:nth-child(3) { transform: scaleY(1.25); transition-delay: 0.08s; }
 
 .diff-code {
   font-family: 'JetBrains Mono', monospace;
@@ -411,3 +390,337 @@ body {
   color: var(--diff-accent, #7efc9d);
   text-shadow: 0 0 10px color-mix(in srgb, var(--diff-accent, #7efc9d) 50%, transparent);
 }
+
+/* =========================================================================== */
+/* --- Interview Screen Week 3 & 4 ------------------------------------------ */
+/* =========================================================================== */
+
+/* Full-viewport two-column layout - desktop only */
+.interview-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-void);
+  position: relative;
+}
+
+/* --- Left Panel: Webcam --- */
+
+.interview-left {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #080d08;
+  border-right: 1px solid var(--color-border);
+}
+
+.webcam-container {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  overflow: hidden;
+  position: relative;
+}
+
+.webcam-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.session-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.60);
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-data);
+  font-size: 0.7rem;
+  color: var(--color-text-disabled);
+  flex-shrink: 0;
+}
+
+.session-id-label code {
+  color: var(--color-phosphor);
+  font-family: var(--font-data);
+}
+
+.session-phase-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-text-disabled);
+}
+.session-phase-dot--listening  { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.6); animation: pulse-dot 1.2s ease-in-out infinite; }
+.session-phase-dot--speaking   { background: var(--color-phosphor); box-shadow: 0 0 8px rgba(126,252,157,0.5); }
+.session-phase-dot--processing { background: var(--color-amber); box-shadow: 0 0 8px rgba(245,158,11,0.5); }
+.session-phase-dot--complete   { background: var(--color-phosphor); }
+.session-phase-dot--idle       { background: var(--color-text-disabled); }
+
+.session-phase-text {
+  font-family: var(--font-data);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: var(--color-text-disabled);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.25); }
+}
+
+/* --- Right Panel: Question & Status --- */
+
+.interview-right {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-void);
+  overflow: hidden;
+}
+
+.interview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 36px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.interview-brand {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-phosphor);
+}
+
+.interview-progress-label {
+  font-family: var(--font-data);
+  font-size: 0.75rem;
+  color: var(--color-text-disabled);
+  letter-spacing: 0.1em;
+}
+
+.interview-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: 40px 48px;
+  gap: 32px;
+  overflow: hidden;
+}
+
+.interview-footer {
+  padding: 16px 36px;
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+}
+
+/* --- Question Display --- */
+
+.question-display {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.question-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.question-label {
+  font-family: var(--font-data);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-phosphor);
+}
+
+.question-of {
+  color: var(--color-text-disabled);
+  font-weight: 400;
+}
+
+.progress-track {
+  width: 100%;
+  height: 3px;
+  background: var(--color-border-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-phosphor), var(--color-phosphor-dim));
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 0 8px rgba(126, 252, 157, 0.5);
+}
+
+.question-text-card {
+  background: rgba(27, 33, 27, 0.50);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 1.25rem;
+  padding: 32px 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+.question-text-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--color-phosphor), transparent);
+}
+
+.question-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.55;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* --- Phase Status --- */
+
+.phase-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.phase-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-text-disabled);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.phase-dot--listening  { background: #ef4444; box-shadow: 0 0 12px rgba(239,68,68,0.7); animation: pulse-dot 1.2s ease-in-out infinite; }
+.phase-dot--speaking   { background: var(--color-phosphor); box-shadow: 0 0 12px rgba(126,252,157,0.6); }
+.phase-dot--processing { background: var(--color-amber); box-shadow: 0 0 12px rgba(245,158,11,0.6); }
+
+.phase-text {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.elapsed-timer {
+  font-family: var(--font-data);
+  color: #ef4444;
+  font-size: 0.875rem;
+}
+
+/* --- Recording Indicator --- */
+
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 9999px;
+  align-self: flex-start;
+}
+
+.recording-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+  flex-shrink: 0;
+}
+
+.recording-label {
+  font-family: var(--font-data);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #ef4444;
+  text-transform: uppercase;
+}
+
+.recording-elapsed {
+  font-family: var(--font-data);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
+  min-width: 3.2ch;
+}
+
+/* --- Distraction Banner --- */
+
+.distraction-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 24px;
+  background: rgba(245, 158, 11, 0.92);
+  backdrop-filter: blur(12px);
+  color: #0f150f;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 32px rgba(245, 158, 11, 0.4);
+}
+
+.warning-icon { font-size: 1.1rem; }
+
+.countdown {
+  font-family: var(--font-data);
+  font-size: 0.9rem;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.20);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* --- Cheating Count (footer) --- */
+
+.cheat-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-data);
+  font-size: 0.72rem;
+  color: var(--color-amber);
+  letter-spacing: 0.06em;
+}
+
+.cheat-icon { font-size: 0.85rem; }

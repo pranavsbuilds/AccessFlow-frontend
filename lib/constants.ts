@@ -1,5 +1,5 @@
 // ─── API Endpoint Placeholders ───────────────────────────────────────────────
-// ALL endpoint strings live here. When Uwais confirms final FastAPI routes,
+// ALL endpoint strings live here. When the backend confirms final FastAPI routes,
 // update this file only — never hardcode strings in components or hooks.
 
 export const API_SESSION_START =
@@ -18,6 +18,12 @@ export const WS_INTERVIEW_STREAM = (sid: string) =>
 
 export const TOTAL_QUESTIONS = 10;
 
+// ─── Scoring ─────────────────────────────────────────────────────────────────
+
+export const CHEAT_PENALTY = 0.2;
+// Score below this triggers backend Wikipedia lookup — per backend_v1 spec
+export const SCORE_WIKI_THRESHOLD = 0.6;
+
 // ─── Gaze Tracking ───────────────────────────────────────────────────────────
 
 export const GAZE_LEFT_THRESHOLD = 0.35;
@@ -31,15 +37,10 @@ export const YOLO_INPUT_SIZE = 512;      // confirmed: 512×512
 export const COCO_PHONE_CLASS = 67;
 export const COCO_LAPTOP_CLASS = 63;
 
-// ─── Scoring ─────────────────────────────────────────────────────────────────
-
-export const CHEAT_PENALTY = 0.2;
-export const SCORE_PASS_THRESHOLD = 0.5;
-
 // ─── Audio ───────────────────────────────────────────────────────────────────
 
 export const AUDIO_SAMPLE_RATE = 16000; // Vosk expects 16kHz
-export const AUDIO_CHUNK_FRAMES = 1024; // ~64ms per chunk
+export const AUDIO_CHUNK_FRAMES = 1024; // ~64ms per chunk at 16kHz
 
 // ─── Topics ──────────────────────────────────────────────────────────────────
 

@@ -1,7 +1,8 @@
 'use client';
 
-import { startSession, flagSession, getResults } from '@/lib/api';
+import { startSession as apiStartSession, flagSession, getResults } from '@/lib/api';
 import type { Difficulty, SessionResults, Topic } from '@/types';
+import type { StartSessionResult } from '@/lib/api';
 
 /**
  * useSession — thin wrapper around the REST API calls.
@@ -11,8 +12,8 @@ export function useSession() {
   const start = async (
     topic: Topic,
     difficulty: Difficulty
-  ): Promise<string> => {
-    return startSession(topic, difficulty);
+  ): Promise<StartSessionResult> => {
+    return apiStartSession(topic, difficulty);
   };
 
   const flag = async (sessionId: string): Promise<void> => {

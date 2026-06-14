@@ -25,27 +25,31 @@ export interface StartSessionRequest {
 export interface StartSessionResponse {
   sid: string;
   status: string;
+  questions: string[];    // all 10 question texts, returned upfront
+  explanation: string[];  // parallel array of ideal answers
 }
 
 // Interview
 
-export interface Question {
-  qid: number;
-  text: string;
-  order: number;
-}
-
 export interface WebSocketMessage {
   transcript: string;
   score: number;
+  text: string[];
 }
 
 export interface QuestionResponse {
-  qid: number;
+  questionIndex: number;
   transcript: string;
   score: number;
-  attempt: number;
 }
+
+// Interview phase — single source of truth for interview screen state
+export type InterviewPhase =
+  | 'idle'        // before interview starts / between questions
+  | 'speaking'    // TTS is playing the question
+  | 'listening'   // mic is open, audio streaming to backend
+  | 'processing'  // WS closed, waiting for backend response
+  | 'complete';   // all 10 questions answered
 
 // Results
 
@@ -57,11 +61,10 @@ export interface QuestionResult {
   user_transcript: string;
   ideal_answer: string;
   similarity_score: number;
-  wikipedia_link?: {
+  wikipedia_link: {
     title: string;
     url: string;
-    snippet?: string;
-  };
+  } | null;
 }
 
 export interface SessionResults {
@@ -85,11 +88,16 @@ export interface InterviewStore {
 
   currentQuestionIndex: number;
   totalQuestions: number;
-  questions: Question[];
+  questions: string[];          // question texts, loaded from POST /api/sessions/start
+  explanations: string[];       // ideal answers, parallel array to questions
   responses: QuestionResponse[];
   cheatingCount: number;
   sessionPenalty: number;
 
+  interviewPhase: InterviewPhase;
+
+  setQuestionsAndExplanations: (questions: string[], explanations: string[]) => void;
+  setPhase: (phase: InterviewPhase) => void;
   addResponse: (response: QuestionResponse) => void;
   incrementCheating: () => void;
 

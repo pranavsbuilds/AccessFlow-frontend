@@ -9,6 +9,7 @@ import type {
   Difficulty,
   QuestionResponse,
   ClusterLabel,
+  InterviewPhase,
 } from '@/types';
 
 export const useInterviewStore = create<InterviewStore>()(
@@ -25,9 +26,17 @@ export const useInterviewStore = create<InterviewStore>()(
       currentQuestionIndex: 0,
       totalQuestions: TOTAL_QUESTIONS,
       questions: [],
+      explanations: [],
       responses: [],
       cheatingCount: 0,
       sessionPenalty: 0,
+
+      interviewPhase: 'idle',
+
+      setQuestionsAndExplanations: (questions: string[], explanations: string[]) =>
+        set({ questions, explanations }),
+
+      setPhase: (phase: InterviewPhase) => set({ interviewPhase: phase }),
 
       addResponse: (response: QuestionResponse) =>
         set((state) => ({
@@ -54,9 +63,11 @@ export const useInterviewStore = create<InterviewStore>()(
           currentQuestionIndex: 0,
           totalQuestions: TOTAL_QUESTIONS,
           questions: [],
+          explanations: [],
           responses: [],
           cheatingCount: 0,
           sessionPenalty: 0,
+          interviewPhase: 'idle',
           finalScore: null,
           clusterLabel: null,
         }),
@@ -71,11 +82,13 @@ export const useInterviewStore = create<InterviewStore>()(
         currentQuestionIndex: state.currentQuestionIndex,
         totalQuestions: state.totalQuestions,
         questions: state.questions,
+        explanations: state.explanations,
         responses: state.responses,
         cheatingCount: state.cheatingCount,
         sessionPenalty: state.sessionPenalty,
         finalScore: state.finalScore,
         clusterLabel: state.clusterLabel,
+        // interviewPhase intentionally NOT persisted — always start idle
       }),
     }
   )

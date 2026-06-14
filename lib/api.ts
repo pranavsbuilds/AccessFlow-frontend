@@ -21,10 +21,16 @@ const api = axios.create({
   },
 });
 
+export interface StartSessionResult {
+  sid: string;
+  questions: string[];
+  explanations: string[];
+}
+
 export async function startSession(
   topic: Topic,
   difficulty: Difficulty
-): Promise<string> {
+): Promise<StartSessionResult> {
   const payload: StartSessionRequest = {
     uid: getAnonymousUid(),
     job: topic,
@@ -32,7 +38,13 @@ export async function startSession(
   };
 
   const res = await api.post<StartSessionResponse>(API_SESSION_START, payload);
-  return res.data.sid;
+
+  return {
+    sid: res.data.sid,
+    questions: res.data.questions ?? [],
+    // backend field is "explanation" (singular) per backend_v1 spec
+    explanations: res.data.explanation ?? [],
+  };
 }
 
 export async function flagSession(sessionId: string): Promise<void> {
