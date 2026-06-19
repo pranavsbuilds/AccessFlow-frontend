@@ -3,12 +3,12 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export type Topic =
-  | 'machine_learning'
-  | 'computer_science'
-  | 'system_design'
-  | 'data_structures'
-  | 'databases'
-  | 'operating_systems';
+  | 'programming'
+  | 'devops-and-cloud'
+  | 'cybersecurity'
+  | 'database'
+  | 'python'
+  | 'frontend';
 
 export interface TopicOption {
   id: Topic;
@@ -96,7 +96,14 @@ export interface InterviewStore {
 
   interviewPhase: InterviewPhase;
 
+  remainingQuestions: string[];
+  remainingExplanations: string[];
+  remainingDifficulties: string[];
+  currentDifficulty: string | null;
+
   setQuestionsAndExplanations: (questions: string[], explanations: string[]) => void;
+  setQuestionPool: (questions: string[], explanations: string[], difficulties: string[], initialDifficulty: string) => void;
+  updateQuestionPool: (nextQuestion: string, nextExplanation: string, nextDifficulty: string, remainingQ: string[], remainingE: string[], remainingD: string[]) => void;
   setPhase: (phase: InterviewPhase) => void;
   addResponse: (response: QuestionResponse) => void;
   incrementCheating: () => void;

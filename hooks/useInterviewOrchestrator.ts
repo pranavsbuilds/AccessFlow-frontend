@@ -7,6 +7,8 @@ import { useWebSocket } from './useWebSocket';
 import { useAudioCapture } from './useAudioCapture';
 import { speak } from '@/lib/tts';
 import { TOTAL_QUESTIONS } from '@/lib/constants';
+import { scoreAnswer, saveFinalInfo } from '@/lib/api';
+import type { ClusterLabel } from '@/types';
 
 /**
  * useInterviewOrchestrator — the core interview loop.
@@ -30,13 +32,21 @@ export function useInterviewOrchestrator(micStream: MediaStream | null) {
   const {
     sessionId,
     questions,
+    explanations,
     currentQuestionIndex,
     interviewPhase,
     setPhase,
     addResponse,
+    remainingQuestions,
+    remainingExplanations,
+    remainingDifficulties,
+    currentDifficulty,
+    updateQuestionPool,
+    setResults,
+    sessionPenalty,
   } = useInterviewStore();
 
-  const { connect, disconnect, clearResponse, sendBinary, lastResponse } = useWebSocket(sessionId);
+  const { connect, disconnect, clearResponse, sendBinary, lastResponse, liveTranscript } = useWebSocket(sessionId);
 
   // Wire audio capture → WebSocket binary send
   const { startCapture, stopCapture } = useAudioCapture(
@@ -87,19 +97,88 @@ export function useInterviewOrchestrator(micStream: MediaStream | null) {
     if (!lastResponse) return;
     if (!isMounted.current) return;
 
-    stopCapture();
-    disconnect();
-    clearResponse(); // Clear previous question's response immediately after consumption
-    isRunning.current = false;
+    const processResponse = async () => {
+      setPhase('processing');
+      stopCapture();
+      disconnect();
+      clearResponse(); // Clear previous question's response immediately after consumption
 
-    addResponse({
-      questionIndex: currentQuestionIndex,
-      transcript: lastResponse.transcript,
-      score: lastResponse.score,
-    });
-    // addResponse increments currentQuestionIndex in the store
-    // The phase effect below handles what comes next
-    setPhase('idle');
+      try {
+        const payload = {
+          answer: lastResponse.transcript,
+          explanation: explanations[currentQuestionIndex] || '',
+          full_explanation: remainingExplanations,
+          questions: remainingQuestions,
+          difficulty: remainingDifficulties,
+          current_difficulty: currentDifficulty || 'easy',
+          previous_question: questions[currentQuestionIndex] || '',
+        };
+
+        const res = await scoreAnswer(payload);
+        const score = res.current_result / 100;
+
+        if (!isMounted.current) return;
+
+        addResponse({
+          questionIndex: currentQuestionIndex,
+          transcript: lastResponse.transcript,
+          score: score,
+        });
+
+        const isLastQuestion = currentQuestionIndex + 1 >= TOTAL_QUESTIONS;
+
+        if (isLastQuestion) {
+          const currentStore = useInterviewStore.getState();
+          const allScores = [...currentStore.responses, { questionIndex: currentQuestionIndex, transcript: lastResponse.transcript, score }];
+          const avgScore = allScores.reduce((sum, r) => sum + r.score, 0) / TOTAL_QUESTIONS;
+          const finalScore = Math.max(0, Math.min(1.0, avgScore + currentStore.sessionPenalty)) * 10;
+          const finalScoreRounded = Math.round(finalScore * 10) / 10;
+
+          let cluster: ClusterLabel = 'poor';
+          if (finalScoreRounded >= 7.5) {
+            cluster = 'top';
+          } else if (finalScoreRounded >= 5.0) {
+            cluster = 'average';
+          }
+
+          setResults(finalScoreRounded, cluster);
+
+          try {
+            await saveFinalInfo('testuser', finalScoreRounded / 10, Math.round(finalScoreRounded));
+          } catch (err) {
+            console.error('Failed to save final info to backend:', err);
+          }
+
+          setPhase('complete');
+        } else {
+          updateQuestionPool(
+            res.next_question,
+            res.next_explanation,
+            res.difficulty,
+            res.questions,
+            res.explanation,
+            res.difficulty_list
+          );
+          setPhase('idle');
+        }
+      } catch (err) {
+        console.error('Failed to score response:', err);
+        addResponse({
+          questionIndex: currentQuestionIndex,
+          transcript: lastResponse.transcript,
+          score: 0,
+        });
+        if (currentQuestionIndex + 1 >= TOTAL_QUESTIONS) {
+          setPhase('complete');
+        } else {
+          setPhase('idle');
+        }
+      } finally {
+        isRunning.current = false;
+      }
+    };
+
+    processResponse();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastResponse, clearResponse]);
 
@@ -128,5 +207,5 @@ export function useInterviewOrchestrator(micStream: MediaStream | null) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [micStream]);
 
-  return { interviewPhase };
+  return { interviewPhase, liveTranscript };
 }

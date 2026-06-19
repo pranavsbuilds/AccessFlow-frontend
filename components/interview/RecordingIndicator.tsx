@@ -13,7 +13,6 @@ export function RecordingIndicator() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    setElapsed(0);
     intervalRef.current = setInterval(() => {
       setElapsed((s) => s + 1);
     }, 1000);

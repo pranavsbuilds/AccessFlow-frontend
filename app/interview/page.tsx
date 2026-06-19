@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useInterviewStore } from '@/store/interviewStore';
 import { useCamera } from '@/hooks/useCamera';
@@ -12,6 +12,7 @@ import { WebcamFeed } from '@/components/interview/WebcamFeed';
 import { QuestionDisplay } from '@/components/interview/QuestionDisplay';
 import { RecordingIndicator } from '@/components/interview/RecordingIndicator';
 import { DistractionBanner } from '@/components/interview/DistractionBanner';
+import { FlagPopupStack, type FlagPopup, type FlagSeverity } from '@/components/interview/FlagPopupStack';
 import { drawGazeOverlay, drawCheatBorder } from '@/lib/canvasUtils';
 import { TOTAL_QUESTIONS } from '@/lib/constants';
 
@@ -65,13 +66,49 @@ function InterviewScreen({
 
   // Gaze landmarks ref — populated by useGazeTracker callback for canvas overlay
   const landmarksRef = useRef<Array<{ x: number; y: number; z: number }> | null>(null);
+  const previousDistractionRef = useRef(false);
+  const previousPenaltyCountRef = useRef(0);
+  const previousObjectFlagCountRef = useRef(0);
+  const popupIdRef = useRef(0);
+  const [flagPopups, setFlagPopups] = useState<FlagPopup[]>([]);
 
   // Week 4: gaze + object detection
-  const { isDistracted, distractionStartTime } = useGazeTracker(videoRef, sessionId, landmarksRef, cameraStream);
-  const { detectedObjects, scanFrame } = useObjectDetector(videoRef, sessionId);
+  const { isDistracted, distractionStartTime, penaltyCount } = useGazeTracker(videoRef, sessionId, landmarksRef, cameraStream);
+  const { detectedObjects, objectFlagCount, scanFrame } = useObjectDetector(videoRef, sessionId);
 
   // Week 3: interview orchestration (audio pipeline + WS + TTS)
-  const { interviewPhase } = useInterviewOrchestrator(micStream);
+  const { interviewPhase, liveTranscript } = useInterviewOrchestrator(micStream);
+
+  const pushFlagPopup = useCallback((severity: FlagSeverity, title: string, detail: string) => {
+    const id = popupIdRef.current + 1;
+    popupIdRef.current = id;
+    setFlagPopups((items) => [...items.slice(-2), { id, severity, title, detail }]);
+
+    window.setTimeout(() => {
+      setFlagPopups((items) => items.filter((item) => item.id !== id));
+    }, 3600);
+  }, []);
+
+  useEffect(() => {
+    if (isDistracted && !previousDistractionRef.current) {
+      pushFlagPopup('bearable', 'Gaze drift detected', 'Return focus before the countdown completes.');
+    }
+    previousDistractionRef.current = isDistracted;
+  }, [isDistracted, pushFlagPopup]);
+
+  useEffect(() => {
+    if (penaltyCount > previousPenaltyCountRef.current) {
+      pushFlagPopup('bearable', 'Gaze flag recorded', 'Focus warning window expired.');
+    }
+    previousPenaltyCountRef.current = penaltyCount;
+  }, [penaltyCount, pushFlagPopup]);
+
+  useEffect(() => {
+    if (objectFlagCount > previousObjectFlagCountRef.current) {
+      pushFlagPopup('severe', 'Device detected', 'Phone or laptop object flag recorded.');
+    }
+    previousObjectFlagCountRef.current = objectFlagCount;
+  }, [objectFlagCount, pushFlagPopup]);
 
   // Unified rAF loop: video → canvas + overlays + YOLO scan
   useEffect(() => {
@@ -107,7 +144,7 @@ function InterviewScreen({
 
     animId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animId);
-  }, [cameraStream, detectedObjects, scanFrame]);
+  }, [cameraStream, canvasRef, detectedObjects, scanFrame, videoRef]);
 
   return (
     <div className="interview-layout">
@@ -116,9 +153,14 @@ function InterviewScreen({
         isVisible={isDistracted}
         distractionStartTime={distractionStartTime}
       />
+      <FlagPopupStack popups={flagPopups} />
 
       {/* Left panel: webcam feed */}
       <div className="interview-left">
+        <div className={`gaze-hud ${isDistracted ? 'gaze-hud--warning' : 'gaze-hud--tracking'}`}>
+          <span className="gaze-hud__dot" />
+          <span>{isDistracted ? 'Gaze warning active' : 'Gaze tracking active'}</span>
+        </div>
         <WebcamFeed canvasRef={canvasRef} videoRef={videoRef} detectedObjects={detectedObjects} />
 
         {/* Session info strip */}
@@ -148,6 +190,7 @@ function InterviewScreen({
             totalQuestions={TOTAL_QUESTIONS}
             questionText={questions[currentIndex] ?? ''}
             phase={interviewPhase}
+            liveTranscript={liveTranscript}
           />
 
           {/* Recording indicator — only visible while listening */}

@@ -12,12 +12,12 @@ export default function SetupForm() {
   const router = useRouter();
   const { startSession } = useSession();
 
-  const setTopic                    = useInterviewStore((s) => s.setTopic);
-  const setDifficulty               = useInterviewStore((s) => s.setDifficulty);
-  const setSessionId                = useInterviewStore((s) => s.setSessionId);
-  const setQuestionsAndExplanations = useInterviewStore((s) => s.setQuestionsAndExplanations);
-  const selectedTopic               = useInterviewStore((s) => s.selectedTopic);
-  const selectedDifficulty          = useInterviewStore((s) => s.selectedDifficulty);
+  const setTopic           = useInterviewStore((s) => s.setTopic);
+  const setDifficulty      = useInterviewStore((s) => s.setDifficulty);
+  const setSessionId       = useInterviewStore((s) => s.setSessionId);
+  const setQuestionPool    = useInterviewStore((s) => s.setQuestionPool);
+  const selectedTopic      = useInterviewStore((s) => s.selectedTopic);
+  const selectedDifficulty = useInterviewStore((s) => s.selectedDifficulty);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError]         = useState<string | null>(null);
@@ -30,10 +30,9 @@ export default function SetupForm() {
     setError(null);
 
     try {
-      const { sid, questions, explanations } = await startSession(selectedTopic!, selectedDifficulty!);
+      const { sid, questions, explanations, difficulties } = await startSession(selectedTopic!, selectedDifficulty!);
       setSessionId(sid);
-      // Store all 10 questions + explanations upfront — backend returns them on session start
-      setQuestionsAndExplanations(questions, explanations);
+      setQuestionPool(questions, explanations, difficulties, selectedDifficulty!);
       router.push('/check');
     } catch (err) {
       console.error('Session start failed:', err);

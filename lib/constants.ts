@@ -2,17 +2,14 @@
 // ALL endpoint strings live here. When the backend confirms final FastAPI routes,
 // update this file only — never hardcode strings in components or hooks.
 
-export const API_SESSION_START =
-  '/api/sessions/start'; // PLACEHOLDER — field names "job" + "level" pending final confirm
-
-export const API_SESSION_FLAG = (sid: string) =>
-  `/api/interview/${sid}/flag`; // PLACEHOLDER
-
-export const API_SESSION_RESULTS = (sid: string) =>
-  `/api/interview/${sid}/results`; // PLACEHOLDER
-
-export const WS_INTERVIEW_STREAM = (sid: string) =>
-  `${process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8000'}/api/interview/${sid}/stream`; // PLACEHOLDER
+export const API_SESSION_START = '/start_interview';
+export const API_SESSION_FLAG = (sid: string) => `/api/interview/${sid}/flag`; // Kept for local proctoring flags, though noop on FastAPI
+export const API_SESSION_RESULTS = (sid: string) => `/api/interview/${sid}/results`;
+export const WS_INTERVIEW_STREAM = (token: string) =>
+  `${process.env.NEXT_PUBLIC_WS_URL?.replace('http', 'ws') ?? 'ws://localhost:8000'}/STT?mic_status=true&token=${token}`;
+export const API_SCORE = '/score';
+export const API_FINAL_INFO = '/finalinfo';
+export const API_LOGIN = '/login';
 
 // ─── Interview Config ────────────────────────────────────────────────────────
 
@@ -28,7 +25,8 @@ export const SCORE_WIKI_THRESHOLD = 0.6;
 
 export const GAZE_LEFT_THRESHOLD = 0.35;
 export const GAZE_RIGHT_THRESHOLD = 0.65;
-export const DISTRACTION_TIMEOUT_MS = 3000;
+export const DISTRACTION_TIMEOUT_MS = 5000;
+export const ANSWER_COUNTDOWN_SECONDS = 5;
 
 // ─── Object Detection ────────────────────────────────────────────────────────
 
@@ -48,36 +46,37 @@ import type { TopicOption } from '@/types';
 
 export const TOPICS: TopicOption[] = [
   {
-    id: 'machine_learning',
-    label: 'Machine Learning',
-    description: 'Models, training, evaluation, and ML fundamentals',
+    id: 'programming',
+    label: 'Software Programming',
+    description: 'OOP, Javascript, Python, Go, and general coding',
   },
   {
-    id: 'computer_science',
-    label: 'CS Fundamentals',
-    description: 'Algorithms, complexity, and core CS theory',
+    id: 'devops-and-cloud',
+    label: 'DevOps & Cloud Infrastructure',
+    description: 'Docker, Kubernetes, CI/CD, and Cloud hosting',
   },
   {
-    id: 'system_design',
-    label: 'System Design',
-    description: 'Scalability, architecture, and distributed systems',
+    id: 'cybersecurity',
+    label: 'Cybersecurity & Networking',
+    description: 'Encryption, networking concepts, and security protocols',
   },
   {
-    id: 'data_structures',
-    label: 'Data Structures',
-    description: 'Arrays, trees, graphs, and problem solving',
+    id: 'database',
+    label: 'Database Systems',
+    description: 'SQL, NoSQL, and general database architecture',
   },
   {
-    id: 'databases',
-    label: 'Databases',
-    description: 'SQL, NoSQL, indexing, and query optimisation',
+    id: 'python',
+    label: 'Python Development',
+    description: 'Highly specific, practical coding questions',
   },
   {
-    id: 'operating_systems',
-    label: 'Operating Systems',
-    description: 'Processes, memory, concurrency, and scheduling',
+    id: 'frontend',
+    label: 'Frontend Engineering',
+    description: 'Web layout, React hooks, and type safety',
   },
 ];
+
 
 // ─── Motivational Quotes ─────────────────────────────────────────────────────
 

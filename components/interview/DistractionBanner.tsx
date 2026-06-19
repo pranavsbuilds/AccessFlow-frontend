@@ -18,24 +18,21 @@ interface DistractionBannerProps {
  * - distractionStartTime comes from useGazeTracker
  */
 export function DistractionBanner({ isVisible, distractionStartTime }: DistractionBannerProps) {
-  const [secondsUntilFlag, setSecondsUntilFlag] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     if (!isVisible || distractionStartTime === null) {
-      setSecondsUntilFlag(null);
       return;
     }
 
-    const tick = () => {
-      const elapsed = Date.now() - distractionStartTime;
-      const remaining = Math.max(0, Math.ceil((DISTRACTION_TIMEOUT_MS - elapsed) / 1000));
-      setSecondsUntilFlag(remaining);
-    };
-
-    tick();
-    const id = setInterval(tick, 250);
+    const id = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(id);
   }, [isVisible, distractionStartTime]);
+
+  const secondsUntilFlag =
+    isVisible && distractionStartTime !== null
+      ? Math.max(0, Math.ceil((DISTRACTION_TIMEOUT_MS - (now - distractionStartTime)) / 1000))
+      : null;
 
   return (
     <AnimatePresence>

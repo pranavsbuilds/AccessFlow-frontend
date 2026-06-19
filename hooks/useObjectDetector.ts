@@ -21,6 +21,7 @@ export function useObjectDetector(
   const { flagSession } = useSession();
   const incrementCheating = useInterviewStore((s) => s.incrementCheating);
   const [detectedObjects, setDetectedObjects] = useState<number[]>([]);
+  const [objectFlagCount, setObjectFlagCount] = useState(0);
   const workerRef = useRef<Worker | null>(null);
   const frameCountRef = useRef(0);
   const offscreenCanvas = useRef<HTMLCanvasElement | null>(null);
@@ -36,6 +37,7 @@ export function useObjectDetector(
       const { detectedClasses } = e.data;
       if (detectedClasses.length > 0) {
         setDetectedObjects(detectedClasses);
+        setObjectFlagCount((count) => count + 1);
         incrementCheating();
         if (sessionId) {
           // flagSession is fire-and-forget — not awaited in the hot path
@@ -55,7 +57,7 @@ export function useObjectDetector(
       workerRef.current?.terminate();
       workerRef.current = null;
     };
-  }, [sessionId]);
+  }, [flagSession, incrementCheating, sessionId]);
 
   // Called inside the rAF loop from the interview page
   const scanFrame = useCallback(() => {
@@ -73,5 +75,5 @@ export function useObjectDetector(
     workerRef.current.postMessage({ imageData }, [imageData.data.buffer]);
   }, [videoRef]);
 
-  return { detectedObjects, scanFrame };
+  return { detectedObjects, objectFlagCount, scanFrame };
 }

@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef, RefObject } from 'react';
-import { useCamera } from '@/hooks/useCamera';
+import type { RefObject } from 'react';
 
 interface WebcamFeedProps {
   /**
@@ -27,7 +26,7 @@ interface WebcamFeedProps {
  * The <video> is hidden; the <canvas> is what the user sees.
  * The drawing loop is owned by the parent page component using the shared videoRef.
  */
-export function WebcamFeed({ canvasRef, videoRef, detectedObjects = [] }: WebcamFeedProps) {
+export function WebcamFeed({ canvasRef, videoRef }: WebcamFeedProps) {
   return (
     <div className="webcam-container">
       {/* Hidden video element — canvas is what the user sees */}
