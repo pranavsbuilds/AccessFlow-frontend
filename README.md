@@ -15,7 +15,7 @@ npm run dev
 # or yarn dev / pnpm dev / bun dev
 ```
 
-Then hit up [http://localhost:3000](http://localhost:3000) in your browser.
+Then hit up [http://localhost:3001](http://localhost:3001) in your browser.
 
 ## Heads Up
 - **Job & Difficulty Picker**: Make sure you test the flow for different roles and difficulties.
